@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anggaran Kita — Anggaran Rumah Tangga Keluarga Budi &amp; Sari</title>
+<meta name="description" content="Anggaran Kita: situs anggaran rumah tangga berbahasa Indonesia. Dashboard, transaksi, anggaran, tagihan, tabungan, dan laporan — semua angka dihitung dari satu data yang sama dan tersimpan di browser Anda.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312395b'/%3E%3Ccircle cx='32' cy='32' r='13' fill='%23e9a13b'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <div>
+      <p class="brand">Anggaran<span class="dot">●</span>Kita</p>
+      <p class="tagline">Anggaran rumah tangga Keluarga Budi &amp; Sari — Jakarta. Rapi setiap bulan, tanpa ribet.</p>
+    </div>
+    <span class="month-badge">November 2026</span>
+  </div>
+  <nav class="nav" aria-label="Halaman utama">
+    <a href="#/dashboard">Dashboard</a>
+    <a href="#/transaksi">Transaksi</a>
+    <a href="#/anggaran">Anggaran</a>
+    <a href="#/tagihan">Tagihan &amp; Langganan</a>
+    <a href="#/tabungan">Tabungan</a>
+    <a href="#/laporan">Laporan</a>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ DASHBOARD ============ -->
+  <section id="page-dashboard">
+    <div class="page-head">
+      <h1>Selamat pagi, Keluarga Budi &amp; Sari</h1>
+      <p>Ini kondisi dompet keluarga bulan November 2026 — pemasukan, pengeluaran, dan sisa anggaran, semuanya dihitung dari transaksi yang sama.</p>
+    </div>
+    <div class="grid grid-4">
+      <article class="card stat balance"><small>Saldo dompet</small><span class="big-num" id="stat-balance">—</span><p>Saldo awal Rp2.400.000 + pemasukan − pengeluaran</p></article>
+      <article class="card stat income"><small>Pemasukan bulan ini</small><span class="big-num" id="stat-income">—</span><p>Gaji, freelance &amp; jualan online</p></article>
+      <article class="card stat expense"><small>Pengeluaran bulan ini</small><span class="big-num" id="stat-expense">—</span><p id="stat-savings-rate">—</p></article>
+      <article class="card stat"><small>Sisa anggaran</small><span class="big-num" id="stat-budget-left">—</span><p id="stat-budget-total">—</p></article>
+    </div>
+    <div class="grid grid-2" style="margin-top:16px">
+      <article class="card">
+        <h2>Ke mana uang pergi?</h2>
+        <div class="donut-wrap">
+          <div class="donut" id="donut" role="img" aria-label="Diagram pengeluaran per kategori"></div>
+          <ul class="legend" id="donut-legend"></ul>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Perlu diperhatikan</h2>
+        <div id="warnings"></div>
+      </article>
+    </div>
+    <div class="grid grid-2" style="margin-top:16px">
+      <article class="card">
+        <h2>Transaksi terbaru</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th class="num">Jumlah</th></tr></thead>
+          <tbody id="recent-list"></tbody>
+        </table></div>
+        <p><a href="#/transaksi">Lihat semua transaksi →</a></p>
+      </article>
+      <article class="card">
+        <h2>Target tabungan bulan ini</h2>
+        <div id="dash-goals"></div>
+        <p><a href="#/tabungan">Buka halaman Tabungan →</a></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ TRANSAKSI ============ -->
+  <section id="page-transaksi" hidden>
+    <div class="page-head">
+      <h1>Transaksi</h1>
+      <p>Semua pemasukan dan pengeluaran keluarga bulan ini. Tambah, ubah, atau hapus — saldo, anggaran, dan laporan langsung ikut berubah.</p>
+    </div>
+    <article class="card" style="margin-bottom:16px">
+      <h2 id="tx-form-title">Tambah transaksi baru</h2>
+      <form id="tx-form">
+        <div class="form-grid">
+          <label><span>Tanggal</span><input type="date" id="tx-date" value="2026-11-27" required></label>
+          <label><span>Jenis</span><select id="tx-type"><option value="expense">Pengeluaran</option><option value="income">Pemasukan</option></select></label>
+          <label><span>Kategori</span><select id="tx-category"></select></label>
+          <label><span>Keterangan</span><input type="text" id="tx-desc" placeholder="cth. Pasar — sayur &amp; buah" maxlength="80" required></label>
+          <label><span>Nominal (Rp)</span><input type="number" id="tx-amount" min="1000" step="1000" placeholder="150000" required></label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="tx-submit">Tambah transaksi</button>
+          <button type="button" class="secondary" id="reset-data">Kembalikan data awal</button>
+        </div>
+        <p class="msg" id="tx-msg" aria-live="polite"></p>
+      </form>
+    </article>
+    <article class="card">
+      <h2>Daftar transaksi</h2>
+      <div class="filter-row">
+        <label><span class="sr">Filter kategori</span><select id="filter-category" aria-label="Filter kategori">
+          <option>Semua</option><option>Gaji</option><option>Freelance</option><option>Jualan</option>
+          <option>Belanja Pasar</option><option>Makan &amp; Jajan</option><option>Transport</option>
+          <option>Listrik &amp; Air</option><option>Sekolah Anak</option><option>Hiburan</option>
+          <option>Kesehatan</option><option>Lainnya</option><option>Tabungan</option>
+        </select></label>
+        <label><span class="sr">Cari transaksi</span><input type="search" id="filter-search" placeholder="Cari: pasar, bensin, SPP…" aria-label="Cari transaksi"></label>
+      </div>
+      <p class="summary-line" id="tx-count">—</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th class="num">Jumlah</th><th>Aksi</th></tr></thead>
+        <tbody id="tx-body"></tbody>
+      </table></div>
+    </article>
+  </section>
+
+  <!-- ============ ANGGARAN ============ -->
+  <section id="page-anggaran" hidden>
+    <div class="page-head">
+      <h1>Anggaran</h1>
+      <p>Anggaran tiap kategori untuk November 2026. Ubah nominalnya dan Dashboard langsung ikut berubah — realisasi dihitung dari transaksi yang sebenarnya.</p>
+    </div>
+    <p class="summary-line" id="budget-summary">—</p>
+    <div id="budget-list"></div>
+    <p class="note">Status: <strong>Aman</strong> di bawah 80% anggaran · <strong>Waspada</strong> 80–99% · <strong>Lewat batas</strong> 100% ke atas.</p>
+  </section>
+
+  <!-- ============ TAGIHAN ============ -->
+  <section id="page-tagihan" hidden>
+    <div class="page-head">
+      <h1>Tagihan &amp; Langganan</h1>
+      <p>Semua tagihan bulanan keluarga, diurutkan dari jatuh tempo paling dekat. Menandai lunas langsung mencatat pembayarannya sebagai pengeluaran.</p>
+    </div>
+    <p class="summary-line" id="bill-summary">—</p>
+    <p class="msg" id="bill-msg" aria-live="polite"></p>
+    <div id="bill-list"></div>
+    <p class="note">Tagihan lunas yang dibayar tunai tercatat juga di Transaksi (SPP, air PDAM, streaming). BPJS dipotong langsung dari gaji, jadi tidak muncul sebagai transaksi tunai.</p>
+  </section>
+
+  <!-- ============ TABUNGAN ============ -->
+  <section id="page-tabungan" hidden>
+    <div class="page-head">
+      <h1>Tabungan &amp; Target Keluarga</h1>
+      <p>Tiga target yang sedang dikejar keluarga. Setoran langsung mengurangi saldo dompet dan tercatat di Transaksi — jadi angkanya tidak pernah dobel.</p>
+    </div>
+    <p class="summary-line" id="goal-summary">—</p>
+    <p class="msg" id="goal-msg" aria-live="polite"></p>
+    <div id="goal-list"></div>
+  </section>
+
+  <!-- ============ LAPORAN ============ -->
+  <section id="page-laporan" hidden>
+    <div class="page-head">
+      <h1>Laporan Bulanan</h1>
+      <p>Ringkasan enam bulan terakhir keluarga — pemasukan dan pengeluaran bulan demi bulan, plus tiga tips hemat berdasarkan kategori yang paling cepat habis.</p>
+    </div>
+    <div class="report-stats">
+      <article class="card stat income"><small>Pemasukan Nov 2026</small><span class="big-num" id="report-income">—</span><p>Gaji + freelance + jualan</p></article>
+      <article class="card stat expense"><small>Pengeluaran Nov 2026</small><span class="big-num" id="report-expense">—</span><p id="report-biggest">—</p></article>
+      <article class="card stat balance"><small>Saldo dompet</small><span class="big-num" id="report-balance">—</span><p>Saldo awal + pemasukan − pengeluaran</p></article>
+      <article class="card stat"><small>Ditabung bulan ini</small><span class="big-num" id="report-savings">—</span><p>Sisa pemasukan setelah belanja</p></article>
+    </div>
+    <article class="card" style="margin-bottom:16px">
+      <h2>Pemasukan vs pengeluaran — Juni sampai November 2026</h2>
+      <div class="chart" id="chart"></div>
+      <div class="legend-inline"><span><span class="dot" style="background:#e9a13b"></span>Pemasukan</span><span><span class="dot" style="background:#12395b"></span>Pengeluaran</span></div>
+      <p class="note" id="report-avg">—</p>
+    </article>
+    <article class="card">
+      <h2>3 tips hemat bulan ini</h2>
+      <ol class="tips" id="tips"></ol>
+    </article>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p><strong>Anggaran Kita</strong> — dibuat untuk Keluarga Budi &amp; Sari, Jakarta. Semua data contoh tersimpan di browser Anda (localStorage) dan tidak dikirim ke mana pun; situs ini berjalan sepenuhnya offline.</p>
+  <p>Angka di semua halaman dihitung dari satu data transaksi yang sama, jadi tidak ada angka yang saling bertentangan.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
